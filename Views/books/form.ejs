@@ -1,0 +1,99 @@
+<%- include('../partials/header', { title: book ? 'Edit Book' : 'Add New Book' }) %>
+
+<div class="row mb-4">
+    <div class="col-md-12">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="/books">Books</a></li>
+                <li class="breadcrumb-item active" aria-current="page"><%= book ? 'Edit Book' : 'Add New Book' %></li>
+            </ol>
+        </nav>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-8 mx-auto">
+        <div class="card">
+            <div class="card-header">
+                <h2><%= book ? 'Edit Book' : 'Add New Book' %></h2>
+            </div>
+            <div class="card-body">
+                <form action="<%= book ? `/books/${book._id}?_method=PUT` : '/books' %>" method="POST">
+                    <div class="mb-3">
+                        <label for="title" class="form-label">Title</label>
+                        <input type="text" class="form-control" id="title" name="title" value="<%= book ? book.title : '' %>" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="authors" class="form-label">Authors</label>
+                        <input type="text" class="form-control" id="authors" name="authors" 
+                               value="<%= book ? book.authors.join(', ') : '' %>" 
+                               placeholder="Enter authors separated by commas" required>
+                        <div class="form-text">Enter multiple authors separated by commas</div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="price" class="form-label">Price ($)</label>
+                            <input type="number" class="form-control" id="price" name="price" 
+                                   value="<%= book ? book.price : '' %>" step="0.01" min="0" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="stock" class="form-label">Stock</label>
+                            <input type="number" class="form-control" id="stock" name="stock" 
+                                   value="<%= book ? book.stock : '0' %>" min="0" required>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="ISBN" class="form-label">ISBN</label>
+                        <input type="text" class="form-control" id="ISBN" name="ISBN" 
+                               value="<%= book ? book.ISBN : '' %>" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="release_date" class="form-label">Release Date</label>
+                        <input type="date" class="form-control" id="release_date" name="release_date" 
+                               value="<%= book ? new Date(book.release_date).toISOString().split('T')[0] : '' %>" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="description" class="form-label">Description</label>
+                        <textarea class="form-control" id="description" name="description" rows="5"><%= book && book.description ? book.description : '' %></textarea>
+                    </div>
+                    
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <a href="/books" class="btn btn-secondary me-md-2">Cancel</a>
+                        <button type="submit" class="btn btn-primary">
+                            <%= book ? 'Update Book' : 'Add Book' %>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Convert comma-separated authors to array on form submission
+    document.querySelector('form').addEventListener('submit', function(e) {
+        const authorsInput = document.getElementById('authors');
+        const authors = authorsInput.value.split(',').map(author => author.trim());
+        authorsInput.value = JSON.stringify(authors);
+    });
+    
+    // If editing, convert authors array to comma-separated string
+    window.addEventListener('DOMContentLoaded', function() {
+        const authorsInput = document.getElementById('authors');
+        try {
+            const authors = JSON.parse(authorsInput.value);
+            if (Array.isArray(authors)) {
+                authorsInput.value = authors.join(', ');
+            }
+        } catch (e) {
+            // Not JSON, leave as is
+        }
+    });
+</script>
+
+<%- include('../partials/footer') %> 

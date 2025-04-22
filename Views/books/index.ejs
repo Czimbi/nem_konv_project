@@ -1,0 +1,83 @@
+<%- include('../partials/header', { title: 'All Books' }) %>
+
+<div class="row mb-4">
+    <div class="col-md-8">
+        <h1>All Books</h1>
+    </div>
+    <div class="col-md-4 text-end">
+        <a href="/books/new" class="btn btn-primary">
+            <i class="fas fa-plus"></i> Add New Book
+        </a>
+    </div>
+</div>
+
+<!-- Search Form -->
+<div class="row mb-4">
+    <div class="col-md-6">
+        <form action="/books/search" method="GET" class="d-flex">
+            <input type="text" name="query" class="form-control me-2" placeholder="Search by title or author...">
+            <button type="submit" class="btn btn-outline-primary">Search</button>
+        </form>
+    </div>
+</div>
+
+<!-- Books Grid -->
+<div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+    <% books.forEach(book => { %>
+        <div class="col">
+            <div class="card book-card h-100">
+                <img src="https://via.placeholder.com/300x400?text=<%= encodeURIComponent(book.title) %>" 
+                     class="card-img-top book-cover" 
+                     alt="<%= book.title %>">
+                <div class="card-body">
+                    <h5 class="card-title"><%= book.title %></h5>
+                    <p class="card-text">
+                        <strong>Author(s):</strong> <%= book.authors.join(', ') %><br>
+                        <strong>Price:</strong> $<%= book.price.toFixed(2) %><br>
+                        <strong>ISBN:</strong> <%= book.ISBN %><br>
+                        <strong>Stock:</strong> <%= book.stock %>
+                    </p>
+                    <div class="d-flex justify-content-between">
+                        <a href="/books/<%= book._id %>" class="btn btn-primary">View Details</a>
+                        <div>
+                            <a href="/books/<%= book._id %>/edit" class="btn btn-outline-secondary">
+                                <i class="fas fa-edit"></i>
+                            </a>
+                            <button type="button" class="btn btn-outline-danger" 
+                                    data-bs-toggle="modal" 
+                                    data-bs-target="#deleteModal<%= book._id %>">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer text-muted">
+                    Released: <%= new Date(book.release_date).toLocaleDateString() %>
+                </div>
+            </div>
+        </div>
+
+        <!-- Delete Modal -->
+        <div class="modal fade" id="deleteModal<%= book._id %>" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Confirm Delete</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        Are you sure you want to delete "<%= book.title %>"?
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <form action="/books/<%= book._id %>?_method=DELETE" method="POST">
+                            <button type="submit" class="btn btn-danger">Delete</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    <% }); %>
+</div>
+
+<%- include('../partials/footer') %> 

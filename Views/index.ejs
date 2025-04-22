@@ -1,0 +1,66 @@
+<%- include('partials/header') %>
+
+<div class="container mt-5">
+  <div class="jumbotron text-center">
+    <h1 class="display-4">Welcome to Our Bookstore</h1>
+    <p class="lead">Discover a world of books at your fingertips</p>
+    <hr class="my-4">
+    <p>Browse our collection of books, manage your orders, and explore new titles.</p>
+    <a class="btn btn-primary btn-lg" href="/books" role="button">Browse Books</a>
+  </div>
+
+  <div class="row mt-5">
+    <div class="col-md-4">
+      <div class="card mb-4">
+        <div class="card-body text-center">
+          <i class="fas fa-book fa-3x mb-3 text-primary"></i>
+          <h5 class="card-title">Browse Books</h5>
+          <p class="card-text">Explore our extensive collection of books across various genres.</p>
+          <a href="/books" class="btn btn-outline-primary">View Books</a>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card mb-4">
+        <div class="card-body text-center">
+          <i class="fas fa-users fa-3x mb-3 text-primary"></i>
+          <h5 class="card-title">Manage Customers</h5>
+          <p class="card-text">View and manage customer information and their orders.</p>
+          <a href="/customers" class="btn btn-outline-primary">View Customers</a>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card mb-4">
+        <div class="card-body text-center">
+          <i class="fas fa-shopping-cart fa-3x mb-3 text-primary"></i>
+          <h5 class="card-title">Track Orders</h5>
+          <p class="card-text">Monitor and manage all orders in the system.</p>
+          <a href="/orders" class="btn btn-outline-primary">View Orders</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row mt-4">
+    <div class="col-12">
+      <div class="card">
+        <div class="card-body">
+          <h5 class="card-title">Search Books</h5>
+          <form action="/books/search" method="GET" class="form-inline justify-content-center">
+            <div class="input-group w-75">
+              <input type="text" name="query" class="form-control" placeholder="Search by title or author...">
+              <div class="input-group-append">
+                <button class="btn btn-primary" type="submit">
+                  <i class="fas fa-search"></i> Search
+                </button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<%- include('partials/footer') %> 
