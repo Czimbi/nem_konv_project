@@ -19,12 +19,18 @@
                  alt="<%= book.title %>">
         </div>
         <div class="d-grid gap-2">
-            <a href="/books/<%= book._id %>/edit" class="btn btn-primary">
-                <i class="fas fa-edit"></i> Edit Book
-            </a>
-            <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal">
-                <i class="fas fa-trash"></i> Delete Book
-            </button>
+            <% if (isAdmin) { %>
+                <a href="/books/<%= book._id %>/edit" class="btn btn-primary">
+                    <i class="fas fa-edit"></i> Edit Book
+                </a>
+                <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal">
+                    <i class="fas fa-trash"></i> Delete Book
+                </button>
+            <% } else if (book.stock > 0) { %>
+                <button class="btn btn-success" onclick="purchaseBook('<%= book._id %>')">
+                    <i class="fas fa-shopping-cart"></i> Purchase Book
+                </button>
+            <% } %>
             <a href="/books" class="btn btn-outline-secondary">
                 <i class="fas fa-arrow-left"></i> Back to Books
             </a>
@@ -72,69 +78,80 @@
                 <h5>Description</h5>
                 <p>This is a placeholder description for <%= book.title %>. In a real application, you would have a description field in your book model and display it here.</p>
                 
-                <h5 class="mt-4">Related Orders</h5>
-                <% if (orders && orders.length > 0) { %>
-                    <div class="table-responsive">
-                        <table class="table table-striped">
-                            <thead>
-                                <tr>
-                                    <th>Order ID</th>
-                                    <th>Customer</th>
-                                    <th>Date</th>
-                                    <th>Status</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <% orders.forEach(order => { %>
+                <% if (isAdmin) { %>
+                    <h5 class="mt-4">Related Orders</h5>
+                    <% if (orders && orders.length > 0) { %>
+                        <div class="table-responsive">
+                            <table class="table table-striped">
+                                <thead>
                                     <tr>
-                                        <td><a href="/orders/<%= order._id %>"><%= order._id %></a></td>
-                                        <td><%= order.customer.given_name %> <%= order.customer.surname %></td>
-                                        <td><%= new Date(order.order_date).toLocaleDateString() %></td>
-                                        <td>
-                                            <% if (order.status === 'pending') { %>
-                                                <span class="badge bg-warning text-dark">Pending</span>
-                                            <% } else if (order.status === 'processing') { %>
-                                                <span class="badge bg-info">Processing</span>
-                                            <% } else if (order.status === 'shipped') { %>
-                                                <span class="badge bg-primary">Shipped</span>
-                                            <% } else if (order.status === 'delivered') { %>
-                                                <span class="badge bg-success">Delivered</span>
-                                            <% } else if (order.status === 'cancelled') { %>
-                                                <span class="badge bg-danger">Cancelled</span>
-                                            <% } %>
-                                        </td>
+                                        <th>Order ID</th>
+                                        <th>Customer</th>
+                                        <th>Date</th>
+                                        <th>Status</th>
                                     </tr>
-                                <% }); %>
-                            </tbody>
-                        </table>
-                    </div>
-                <% } else { %>
-                    <p>No orders found for this book.</p>
+                                </thead>
+                                <tbody>
+                                    <% orders.forEach(order => { %>
+                                        <tr>
+                                            <td><a href="/orders/<%= order._id %>"><%= order._id %></a></td>
+                                            <td><%= order.customer.given_name %> <%= order.customer.surname %></td>
+                                            <td><%= new Date(order.order_date).toLocaleDateString() %></td>
+                                            <td>
+                                                <% if (order.status === 'pending') { %>
+                                                    <span class="badge bg-warning text-dark">Pending</span>
+                                                <% } else if (order.status === 'processing') { %>
+                                                    <span class="badge bg-info">Processing</span>
+                                                <% } else if (order.status === 'shipped') { %>
+                                                    <span class="badge bg-primary">Shipped</span>
+                                                <% } else if (order.status === 'delivered') { %>
+                                                    <span class="badge bg-success">Delivered</span>
+                                                <% } else if (order.status === 'cancelled') { %>
+                                                    <span class="badge bg-danger">Cancelled</span>
+                                                <% } %>
+                                            </td>
+                                        </tr>
+                                    <% }); %>
+                                </tbody>
+                            </table>
+                        </div>
+                    <% } else { %>
+                        <p>No orders found for this book.</p>
+                    <% } %>
                 <% } %>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Delete Modal -->
-<div class="modal fade" id="deleteModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Confirm Delete</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                Are you sure you want to delete "<%= book.title %>"?
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                <form action="/books/<%= book._id %>?_method=DELETE" method="POST">
-                    <button type="submit" class="btn btn-danger">Delete</button>
-                </form>
+<% if (isAdmin) { %>
+    <!-- Delete Modal -->
+    <div class="modal fade" id="deleteModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Confirm Delete</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    Are you sure you want to delete "<%= book.title %>"?
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <form action="/books/<%= book._id %>?_method=DELETE" method="POST">
+                        <button type="submit" class="btn btn-danger">Delete</button>
+                    </form>
+                </div>
             </div>
         </div>
     </div>
-</div>
+<% } %>
+
+<script>
+    function purchaseBook(bookId) {
+        // TODO: Implement purchase functionality
+        alert('Purchase functionality will be implemented soon!');
+    }
+</script>
 
 <%- include('../partials/footer') %> 

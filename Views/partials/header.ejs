@@ -27,6 +27,10 @@
             padding: 20px 0;
             margin-top: 50px;
         }
+        .user-info {
+            color: rgba(255, 255, 255, 0.75);
+            margin-right: 1rem;
+        }
     </style>
 </head>
 <body>
@@ -42,17 +46,31 @@
                     <li class="nav-item">
                         <a class="nav-link" href="/books">Books</a>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/customers">Customers</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/orders">Orders</a>
-                    </li>
+                    <% if (isAuthenticated) { %>
+                        <% if (isAdmin) { %>
+                            <li class="nav-item">
+                                <a class="nav-link" href="/customers">Customers</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="/orders">Orders</a>
+                            </li>
+                        <% } %>
+                    <% } %>
                 </ul>
-                <form class="d-flex" action="/books/search" method="GET">
-                    <input class="form-control me-2" type="search" name="query" placeholder="Search books..." aria-label="Search">
-                    <button class="btn btn-outline-light" type="submit">Search</button>
-                </form>
+                <div class="d-flex align-items-center">
+                    <% if (isAuthenticated) { %>
+                        <span class="user-info">
+                            <i class="fas fa-user"></i> <%= user.given_name %> <%= user.surname %>
+                            <% if (isAdmin) { %>
+                                <span class="badge bg-warning text-dark">Admin</span>
+                            <% } %>
+                        </span>
+                        <a href="/auth/logout" class="btn btn-outline-light">Logout</a>
+                    <% } else { %>
+                        <a href="/auth/login" class="btn btn-outline-light me-2">Login</a>
+                        <a href="/auth/register" class="btn btn-primary">Register</a>
+                    <% } %>
+                </div>
             </div>
         </div>
     </nav>
