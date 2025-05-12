@@ -1,7 +1,6 @@
 const express = require('express');
 const { connectDB } = require('./Database/connection');
 const Book = require('./Model/Book');
-const Customer = require('./Model/Customer');
 const Order = require('./Model/Order');
 const User = require('./Model/User');
 const path = require('path');
@@ -331,8 +330,8 @@ app.get('/books/search', async (req, res) => {
 // Create a new customer (admin only)
 app.post('/api/customers', isAuthenticated, isAdmin, async (req, res) => {
     try {
-        const customer = await Customer.create(req.body);
-        res.status(201).json({ success: true, data: customer });
+        const user = await User.create({ ...req.body, role: 'user' });
+        res.status(201).json({ success: true, data: user });
     } catch (error) {
         res.status(400).json({ success: false, error: error.message });
     }
@@ -341,8 +340,8 @@ app.post('/api/customers', isAuthenticated, isAdmin, async (req, res) => {
 // Get all customers (admin only)
 app.get('/api/customers', isAuthenticated, isAdmin, async (req, res) => {
     try {
-        const customers = await Customer.find();
-        res.status(200).json({ success: true, count: customers.length, data: customers });
+        const users = await User.find({ role: 'user' });
+        res.status(200).json({ success: true, count: users.length, data: users });
     } catch (error) {
         res.status(500).json({ success: false, error: error.message });
     }
@@ -351,11 +350,11 @@ app.get('/api/customers', isAuthenticated, isAdmin, async (req, res) => {
 // Get a single customer by ID (admin only)
 app.get('/api/customers/:id', isAuthenticated, isAdmin, async (req, res) => {
     try {
-        const customer = await Customer.findById(req.params.id);
-        if (!customer) {
+        const user = await User.findOne({ _id: req.params.id, role: 'user' });
+        if (!user) {
             return res.status(404).json({ success: false, error: 'Customer not found' });
         }
-        res.status(200).json({ success: true, data: customer });
+        res.status(200).json({ success: true, data: user });
     } catch (error) {
         res.status(500).json({ success: false, error: error.message });
     }
@@ -364,14 +363,15 @@ app.get('/api/customers/:id', isAuthenticated, isAdmin, async (req, res) => {
 // Update a customer (admin only)
 app.put('/api/customers/:id', isAuthenticated, isAdmin, async (req, res) => {
     try {
-        const customer = await Customer.findByIdAndUpdate(req.params.id, req.body, {
-            new: true,
-            runValidators: true
-        });
-        if (!customer) {
+        const user = await User.findOneAndUpdate(
+            { _id: req.params.id, role: 'user' },
+            req.body,
+            { new: true, runValidators: true }
+        );
+        if (!user) {
             return res.status(404).json({ success: false, error: 'Customer not found' });
         }
-        res.status(200).json({ success: true, data: customer });
+        res.status(200).json({ success: true, data: user });
     } catch (error) {
         res.status(400).json({ success: false, error: error.message });
     }
@@ -380,8 +380,8 @@ app.put('/api/customers/:id', isAuthenticated, isAdmin, async (req, res) => {
 // Delete a customer (admin only)
 app.delete('/api/customers/:id', isAuthenticated, isAdmin, async (req, res) => {
     try {
-        const customer = await Customer.findByIdAndDelete(req.params.id);
-        if (!customer) {
+        const user = await User.findOneAndDelete({ _id: req.params.id, role: 'user' });
+        if (!user) {
             return res.status(404).json({ success: false, error: 'Customer not found' });
         }
         res.status(200).json({ success: true, data: {} });
@@ -522,6 +522,40 @@ app.get('/error', (req, res) => {
         title: 'Error',
         error: req.query.message || 'An error occurred'
     });
+});
+
+// Render customers index page (admin only)
+app.get('/customers', isAuthenticated, isAdmin, async (req, res) => {
+    try {
+        const customers = await User.find({ role: 'user' });
+        res.render('customers/index', {
+            title: 'Customers',
+            customers
+        });
+    } catch (error) {
+        res.status(500).render('error', {
+            title: 'Error',
+            error: error.message
+        });
+    }
+});
+
+// Render orders index page (admin only)
+app.get('/orders', isAuthenticated, isAdmin, async (req, res) => {
+    try {
+        const orders = await Order.find()
+            .populate('books')
+            .populate('customer');
+        res.render('orders/index', {
+            title: 'Orders',
+            orders
+        });
+    } catch (error) {
+        res.status(500).render('error', {
+            title: 'Error',
+            error: error.message
+        });
+    }
 });
 
 // 404 handler
